@@ -28,7 +28,8 @@
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <linux/videodev.h>
+//#include <linux/videodev.h>
+#include <linux/videodev2.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include "v4l2uvc.h"
@@ -389,15 +390,15 @@ int v4l2SetControl (struct vdIn *vd, int control, int value)
 {
     struct v4l2_control control_s;
     struct v4l2_queryctrl queryctrl;
-    int min, max, step, val_def;
+    int min, max; //,step, val_def;
     int err;
 
     if (isv4l2Control (vd, control, &queryctrl) < 0)
         return -1;
     min = queryctrl.minimum;
     max = queryctrl.maximum;
-    step = queryctrl.step;
-    val_def = queryctrl.default_value;
+    //step = queryctrl.step;
+    //val_def = queryctrl.default_value;
     if ((value >= min) && (value <= max)) {
         control_s.id = control;
         control_s.value = value;
@@ -413,15 +414,15 @@ int v4l2UpControl (struct vdIn *vd, int control)
 {
     struct v4l2_control control_s;
     struct v4l2_queryctrl queryctrl;
-    int min, max, current, step, val_def;
+    int max, current, step;//, min, val_def;
     int err;
 
     if (isv4l2Control (vd, control, &queryctrl) < 0)
         return -1;
-    min = queryctrl.minimum;
+    //min = queryctrl.minimum;
     max = queryctrl.maximum;
     step = queryctrl.step;
-    val_def = queryctrl.default_value;
+    //val_def = queryctrl.default_value;
     current = v4l2GetControl (vd, control);
     current += step;
     if (current <= max) {
@@ -435,6 +436,7 @@ int v4l2UpControl (struct vdIn *vd, int control)
     return control_s.value;
 }
 
+#if 0
 int v4l2DownControl (struct vdIn *vd, int control)
 {
     struct v4l2_control control_s;
@@ -479,6 +481,7 @@ int v4l2ToggleControl (struct vdIn *vd, int control)
     }
     return control_s.value;
 }
+#endif
 
 int v4l2ResetControl (struct vdIn *vd, int control)
 {
@@ -500,6 +503,8 @@ int v4l2ResetControl (struct vdIn *vd, int control)
     return 0;
 }
 
+#if 0
+/*
 int v4l2ResetPanTilt (struct vdIn *vd, int pantilt)
 {
     int control = V4L2_CID_PANTILT_RESET;
@@ -520,6 +525,7 @@ int v4l2ResetPanTilt (struct vdIn *vd, int pantilt)
 
     return 0;
 }
+*/
 
 union pantilt {
     struct {
@@ -529,6 +535,7 @@ union pantilt {
     int value;
 } pantilt;
 
+/*
 int v4L2UpDownPan (struct vdIn *vd, short inc)
 {
     int control = V4L2_CID_PANTILT_RELATIVE;
@@ -575,3 +582,6 @@ int v4L2UpDownTilt (struct vdIn *vd, short inc)
     }
     return 0;
 }
+
+*/
+#endif

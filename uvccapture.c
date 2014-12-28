@@ -32,7 +32,9 @@
 #include <unistd.h>
 #include <jpeglib.h>
 #include <time.h>
-#include <linux/videodev.h>
+//#include <linux/videodev.h>
+//#include <libv4l1-videodev.h>
+#include <linux/videodev2.h>
 
 #include "v4l2uvc.h"
 
@@ -336,7 +338,7 @@ int main (int argc, char *argv[])
     v4l2ResetControl (videoIn, V4L2_CID_BRIGHTNESS);
     v4l2ResetControl (videoIn, V4L2_CID_CONTRAST);
     v4l2ResetControl (videoIn, V4L2_CID_SATURATION);
-    v4l2ResetControl (videoIn, V4L2_CID_GAIN);
+    //v4l2ResetControl (videoIn, V4L2_CID_GAIN);
 
     //Setup Camera Parameters
     if (brightness != 0) {

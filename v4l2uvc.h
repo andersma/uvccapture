@@ -21,10 +21,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA    #
 #                                                                              #
 *******************************************************************************/
+#ifndef XXXXX__
+#define XXXXX__
 
 #define NB_BUFFER 16
 #define DHT_SIZE 420
-
+/*
 #define V4L2_CID_BACKLIGHT_COMPENSATION	(V4L2_CID_PRIVATE_BASE+0)
 #define V4L2_CID_POWER_LINE_FREQUENCY	(V4L2_CID_PRIVATE_BASE+1)
 #define V4L2_CID_SHARPNESS		(V4L2_CID_PRIVATE_BASE+2)
@@ -35,6 +37,7 @@
 
 #define V4L2_CID_PANTILT_RELATIVE	(V4L2_CID_PRIVATE_BASE+7)
 #define V4L2_CID_PANTILT_RESET		(V4L2_CID_PRIVATE_BASE+8)
+*/
 
 struct vdIn {
     int fd;
@@ -72,6 +75,7 @@ int v4l2UpControl (struct vdIn *vd, int control);
 int v4l2DownControl (struct vdIn *vd, int control);
 int v4l2ToggleControl (struct vdIn *vd, int control);
 int v4l2ResetControl (struct vdIn *vd, int control);
-int v4l2ResetPanTilt (struct vdIn *vd, int pantilt);
+//int v4l2ResetPanTilt (struct vdIn *vd, int pantilt);
 int v4L2UpDownPan (struct vdIn *vd, short inc);
 int v4L2UpDownTilt (struct vdIn *vd, short inc);
+#endif
