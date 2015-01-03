@@ -117,6 +117,11 @@ int init_videoIn (struct vdIn *vd, char *device, int width, int height,
     case V4L2_PIX_FMT_YUYV:
         vd->framebuffer = (unsigned char *) calloc (1, (size_t) vd->framesizeIn);
         break;
+    case V4L2_PIX_FMT_RGB24:
+        vd->framesizeIn = (vd->width * vd->height * 3);
+        vd->framebuffer = (unsigned char *) calloc (1, (size_t) vd->framesizeIn);
+        printf("*** vd->framesizeIn = %d\n", vd->framesizeIn);
+        break;
     default:
         fprintf (stderr, " should never arrive exit fatal !!\n");
         goto error;
@@ -173,7 +178,7 @@ static int init_v4l2 (struct vdIn *vd)
     vd->fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     vd->fmt.fmt.pix.width = vd->width;
     vd->fmt.fmt.pix.height = vd->height;
-    vd->fmt.fmt.pix.pixelformat = vd->formatIn;
+    vd->fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_BGR24;//vd->formatIn;
     vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
     ret = ioctl (vd->fd, VIDIOC_S_FMT, &vd->fmt);
     if (ret < 0) {
@@ -287,6 +292,10 @@ int uvcGrab (struct vdIn *vd)
         fprintf (stderr, "Unable to dequeue buffer (%d).\n", errno);
         goto err;
     }
+    
+    printf ("*** vd->buf.bytesused = %d \n", vd->buf.bytesused);
+    printf ("*** vd->buf.index     = %d \n", vd->buf.index);
+
     switch (vd->formatIn) {
     case V4L2_PIX_FMT_MJPEG:
 
@@ -299,6 +308,10 @@ int uvcGrab (struct vdIn *vd)
             fprintf (stderr, "bytes in used %d \n", vd->buf.bytesused);
         break;
     case V4L2_PIX_FMT_YUYV:
+        //break;
+    case V4L2_PIX_FMT_RGB24: 
+         printf ("*** vd->buf.bytesused = %d \n", vd->buf.bytesused);
+         printf ("*** vd->buf.index     = %d \n", vd->buf.index);
         if (vd->buf.bytesused > vd->framesizeIn)
             memcpy (vd->framebuffer, vd->mem[vd->buf.index],
                     (size_t) vd->framesizeIn);

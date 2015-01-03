@@ -35,6 +35,7 @@
 //#include <linux/videodev.h>
 //#include <libv4l1-videodev.h>
 #include <linux/videodev2.h>
+#include <bmpfile.h>
 
 #include "v4l2uvc.h"
 
@@ -115,6 +116,56 @@ int spawn (char *argv[], int wait, int verbose)
     return rv;
 }
 
+int save_bmp(struct vdIn *vd)
+{
+    bmpfile_t *bmp;
+    unsigned char *yuyv;
+    int i, z;
+    
+    rgb_pixel_t pixel = {0, 0, 0, 1};
+    if ((bmp = bmp_create(vd->width, vd->height, 24)) == NULL)
+    {
+        printf("bmp_create failed\n");
+    }
+
+    yuyv = vd->framebuffer;
+    z = 0;
+
+    for (i = 0; i < vd->height; i++) {
+        int x;
+        for (x = 0; x < vd->width; x++) {
+            int r, g, b;
+            int y, u, v;
+
+            if (!z)
+                y = yuyv[0] << 8;
+            else
+                y = yuyv[2] << 8;
+            u = yuyv[1] - 128;
+            v = yuyv[3] - 128;
+
+            r = (y + (359 * v)) >> 8;
+            g = (y - (88 * u) - (183 * v)) >> 8;
+            b = (y + (454 * u)) >> 8;
+
+            pixel.red   = r;
+            pixel.green = g;
+            pixel.blue  = b;
+            bmp_set_pixel(bmp, x, i, pixel);
+
+            if (z++) {
+                z = 0;
+                yuyv += 4;
+            }
+            
+        }
+    }
+    bmp_save(bmp, "save.bmp");
+    bmp_destroy(bmp); return 0;
+
+    return (0);
+}
+
 int compress_yuyv_to_jpeg (struct vdIn *vd, FILE * file, int quality)
 {
     struct jpeg_compress_struct cinfo;
@@ -184,13 +235,25 @@ int compress_yuyv_to_jpeg (struct vdIn *vd, FILE * file, int quality)
     return (0);
 }
 
+void dump(unsigned char *p)
+{
+    int len = 256;
+
+    for (int i = 0; i < len; i++)
+    {
+        printf("0x%2x ", p[i]);
+	if (i % 32 == 0)
+	    printf("\n");
+    }
+}
+
 int main (int argc, char *argv[])
 {
     char *videodevice = "/dev/video0";
     char *outputfile = "snap.jpg";
     char  thisfile[200]; /* used as filename buffer in multi-file seq. */
     char *post_capture_command[3];
-    int format = V4L2_PIX_FMT_MJPEG;
+    int format = V4L2_PIX_FMT_RGB24;
     int grabmethod = 1;
     int width = 320;
     int height = 240;
@@ -335,6 +398,7 @@ int main (int argc, char *argv[])
     //Reset all camera controls
     if (verbose >= 1)
         fprintf (stderr, "Resetting camera settings\n");
+
     v4l2ResetControl (videoIn, V4L2_CID_BRIGHTNESS);
     v4l2ResetControl (videoIn, V4L2_CID_CONTRAST);
     v4l2ResetControl (videoIn, V4L2_CID_SATURATION);
@@ -406,7 +470,11 @@ int main (int argc, char *argv[])
                 case V4L2_PIX_FMT_YUYV:
                     compress_yuyv_to_jpeg (videoIn, file, quality);
                     break;
+		case V4L2_PIX_FMT_RGB24:
+		    save_bmp(videoIn);
+		    break;
                 default:
+		    //dump(videoIn->framebuffer);
                     fwrite (videoIn->tmpbuffer, videoIn->buf.bytesused + DHT_SIZE, 1,
                             file);
                     break;
