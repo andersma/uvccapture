@@ -116,11 +116,12 @@ int spawn (char *argv[], int wait, int verbose)
     return rv;
 }
 
-int save_bmp(struct vdIn *vd)
+int save_bmp(struct vdIn *vd, char *filename)
 {
     bmpfile_t *bmp;
     unsigned char *yuyv;
     int i, z;
+    char buf[204];
     
     rgb_pixel_t pixel = {0, 0, 0, 1};
     if ((bmp = bmp_create(vd->width, vd->height, 24)) == NULL)
@@ -160,7 +161,9 @@ int save_bmp(struct vdIn *vd)
             
         }
     }
-    bmp_save(bmp, "save.bmp");
+    strncpy(buf, filename, 200);
+    strcat(buf, ".bmp");
+    bmp_save(bmp, buf);
     bmp_destroy(bmp); return 0;
 
     return (0);
@@ -253,7 +256,7 @@ int main (int argc, char *argv[])
     char *outputfile = "snap.jpg";
     char  thisfile[200]; /* used as filename buffer in multi-file seq. */
     char *post_capture_command[3];
-    int format = V4L2_PIX_FMT_RGB24;
+    int format = V4L2_PIX_FMT_MJPEG;
     int grabmethod = 1;
     int width = 320;
     int height = 240;
@@ -469,12 +472,12 @@ int main (int argc, char *argv[])
                 switch (videoIn->formatIn) {
                 case V4L2_PIX_FMT_YUYV:
                     compress_yuyv_to_jpeg (videoIn, file, quality);
+		    if (multifile == 1)
+		        save_bmp(videoIn, thisfile);
+	            else
+		        save_bmp(videoIn, outputfile);
                     break;
-		case V4L2_PIX_FMT_RGB24:
-		    save_bmp(videoIn);
-		    break;
                 default:
-		    //dump(videoIn->framebuffer);
                     fwrite (videoIn->tmpbuffer, videoIn->buf.bytesused + DHT_SIZE, 1,
                             file);
                     break;
