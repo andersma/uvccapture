@@ -28,7 +28,6 @@
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
-//#include <linux/videodev.h>
 #include <linux/videodev2.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
@@ -120,7 +119,6 @@ int init_videoIn (struct vdIn *vd, char *device, int width, int height,
     case V4L2_PIX_FMT_RGB24:
         vd->framesizeIn = (vd->width * vd->height * 3);
         vd->framebuffer = (unsigned char *) calloc (1, (size_t) vd->framesizeIn);
-        printf("*** vd->framesizeIn = %d\n", vd->framesizeIn);
         break;
     default:
         fprintf (stderr, " should never arrive exit fatal !!\n");
@@ -293,9 +291,6 @@ int uvcGrab (struct vdIn *vd)
         goto err;
     }
     
-    printf ("*** vd->buf.bytesused = %d \n", vd->buf.bytesused);
-    printf ("*** vd->buf.index     = %d \n", vd->buf.index);
-
     switch (vd->formatIn) {
     case V4L2_PIX_FMT_MJPEG:
 
@@ -310,8 +305,6 @@ int uvcGrab (struct vdIn *vd)
     case V4L2_PIX_FMT_YUYV:
         //break;
     case V4L2_PIX_FMT_RGB24: 
-         printf ("*** vd->buf.bytesused = %d \n", vd->buf.bytesused);
-         printf ("*** vd->buf.index     = %d \n", vd->buf.index);
         if (vd->buf.bytesused > vd->framesizeIn)
             memcpy (vd->framebuffer, vd->mem[vd->buf.index],
                     (size_t) vd->framesizeIn);

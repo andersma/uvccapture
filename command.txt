@@ -1,0 +1,4 @@
+#command to capture 5 (sample<0-5>.jpg) photos every 1 second
+./uvccapture -m -n5 -o./sample%i.jpg -t1
+#command to capture 1 photo (sample0.jgp) with x:1280 and y:720
+./uvccapture -m -x1280 -y720 -o./sample0.jpg
