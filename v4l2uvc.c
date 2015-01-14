@@ -178,7 +178,7 @@ static int init_v4l2 (struct vdIn *vd)
     vd->fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     vd->fmt.fmt.pix.width = vd->width;
     vd->fmt.fmt.pix.height = vd->height;
-    vd->fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_BGR24;//vd->formatIn;
+    vd->fmt.fmt.pix.pixelformat = vd->formatIn;
     vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
     ret = ioctl (vd->fd, VIDIOC_S_FMT, &vd->fmt);
     if (ret < 0) {
